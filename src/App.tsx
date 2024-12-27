@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 
 interface Producto {
-  sku: string;
-  nombre: string;
-  descripcion: string;
+  ref: string;
+  label: string;
+  description: string;
   largo: string;
   alto: string;
   ancho: string;
@@ -24,12 +24,13 @@ const Productos = () => {
 
   useEffect(() => {
     const cargarProductos = async () => {
-      // Aquí debes reemplazar con la llamada a tu API para obtener los productos
-      const productos = [
-        { sku: '123', nombre: 'Producto 1', descripcion: 'Descripción del producto 1', largo: '10cm', alto: '5cm', ancho: '8cm', stock: 10, bodega: 'Bodega 1', almacen: 'Almacén 1', pasillo: 'Pasillo 1', anaquel: 'Anaquel 1', nivel: 'Nivel 1', casillero: 'Casillero 1' },
-        { sku: '456', nombre: 'Producto 2', descripcion: 'Descripción del producto 2', largo: '15cm', alto: '10cm', ancho: '12cm', stock: 20, bodega: 'Bodega 2', almacen: 'Almacén 2', pasillo: 'Pasillo 2', anaquel: 'Anaquel 2', nivel: 'Nivel 2', casillero: 'Casillero 2' },
-      ];
-      setProductos(productos);
+      try {
+        const respuesta = await fetch('http://localhost:3001/llx_product');
+        const datos = await respuesta.json();
+        setProductos(datos);
+      } catch (error) {
+        console.error('Error al cargar los productos:', error);
+      }
     };
     cargarProductos();
   }, []);
@@ -47,7 +48,6 @@ const Productos = () => {
   };
 
   const handleGuardar = () => {
-    // Aquí debes reemplazar con la llamada a tu API para guardar los cambios
     setModoEdicion(false);
   };
 
@@ -64,21 +64,21 @@ const Productos = () => {
       <table className="w-full table-auto mb-4">
         <thead>
           <tr>
-            <th className="px-4 py-2 text-left">SKU</th>
-            <th className="px-4 py-2 text-left">Nombre</th>
+            <th className="px-4 py-2 text-left">Referencia</th>
+            <th className="px-4 py-2 text-left">Etiqueta</th>
             <th className="px-4 py-2 text-left">Descripción</th>
           </tr>
         </thead>
         <tbody>
           {productos
             .filter((producto) =>
-              producto.nombre.toLowerCase().includes(buscar.toLowerCase())
+              producto.ref?.toLowerCase().includes(buscar.toLowerCase())
             )
             .map((producto) => (
-              <tr key={producto.sku}>
-                <td className="px-4 py-2">{producto.sku}</td>
-                <td className="px-4 py-2">{producto.nombre}</td>
-                <td className="px-4 py-2">{producto.descripcion}</td>
+              <tr key={producto.ref}>
+                <td className="px-4 py-2">{producto.ref}</td>
+                <td className="px-4 py-2">{producto.label}</td>
+                <td className="px-4 py-2">{producto.description}</td>
                 <td className="px-4 py-2">
                   <button
                     onClick={() => handleSeleccionarProducto(producto)}
@@ -94,10 +94,10 @@ const Productos = () => {
       {productoSeleccionado && (
         <div className="bg-gray-100 p-4 mb-4">
           <h2 className="text-2xl font-bold mb-2">
-            {productoSeleccionado.nombre}
+            {productoSeleccionado.label}
           </h2>
-          <p className="mb-2">SKU: {productoSeleccionado.sku}</p>
-          <p className="mb-2">Descripción: {productoSeleccionado.descripcion}</p>
+          <p className="mb-2">Referencia: {productoSeleccionado.ref}</p>
+          <p className="mb-2">Descripción: {productoSeleccionado.description}</p>
           <p className="mb-2">Largo: {productoSeleccionado.largo}</p>
           <p className="mb-2">Alto: {productoSeleccionado.alto}</p>
           <p className="mb-2">Ancho: {productoSeleccionado.ancho}</p>
